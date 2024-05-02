@@ -48,16 +48,37 @@ const tableSchema = {
   // isActive: 'Активен',
 };
 
-let sortMethod = "По умолчанию";
+let currentSortMethod = "По умолчанию";
+const ascending = "По возрастанию";
+const descending = "По убыванию";
 
 const sortButton = document.querySelector(".btn.btn-primary.btn-sort");
 const displaySortMethod = document.querySelector("span.sort-method");
-// console.log(displaySortMethod);
+
+console.dir(displaySortMethod);
+
 sortButton.addEventListener("click", (e) => {
-  getPosts(renderPosts);
+  if (currentSortMethod !== ascending) {
+    users.sort((a, b) => {
+      return a.balance - b.balance;
+    });
+    const currentTbody = document.querySelector("tbody");
+    const newTbody = generateTbody(tableSchema, users);
+    currentSortMethod = ascending;
+    displaySortMethod.textContent = currentSortMethod;
+    currentTbody.replaceWith(newTbody);
+  } else if (currentSortMethod === ascending) {
+    users.sort((a, b) => {
+      return b.balance - a.balance;
+    });
+    const currentTbody = document.querySelector("tbody");
+    const newTbody = generateTbody(tableSchema, users);
+    currentSortMethod = descending;
+    displaySortMethod.textContent = currentSortMethod;
+    currentTbody.replaceWith(newTbody);
+    // console.log(currentSortMethod);
+  }
 });
-
-
 
 function generateTableTemplate() {
   const table = document.createElement("table");
