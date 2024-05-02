@@ -55,39 +55,41 @@ const sortButton = document.querySelector(".btn.btn-primary.btn-sort");
 const displaySortMethod = document.querySelector("span.sort-method");
 
 sortButton.addEventListener("click", (e) => {
-  let arrow = "";
+  // создание стрелки
+  const iTag = document.createElement("i");
+  iTag.classList.add("fa-solid");
 
+  // сортировка
   if (currentSortMethod !== ascending) {
     users.sort((a, b) => {
       return a.balance - b.balance;
     });
     currentSortMethod = ascending;
-    arrow = "fa-arrow-down";
+    iTag.classList.add("fa-arrow-down");
   } else if (currentSortMethod === ascending) {
     users.sort((a, b) => {
       return b.balance - a.balance;
     });
     currentSortMethod = descending;
-    arrow = "fa-arrow-up";
+    iTag.classList.add("fa-arrow-up");
   }
 
-  // Перерисовка кнопки со стрелкой
-  const iTag = document.createElement("i");
-  iTag.classList.add("fa-solid");
-  iTag.classList.add(arrow);
-  // console.log(arrow);
-  // console.log("iTag = ", iTag);
-  if (!sortButton.childNodes[1]) {
-    sortButton.childNodes[0].textContent = "Сортировка  ";
-    sortButton.appendChild(iTag);
-  } else sortButton.childNodes[1].replaceWith(iTag);
+  // Перерисовка стрелки внутри кнопки
+  sortButton.childNodes[1].replaceWith(iTag);
 
-  // перерисовка таблицы
+  // если в исходном  html нет тега <i> раскоментить этот блок.
+  // if (!sortButton.childNodes[1]) {
+  //   sortButton.childNodes[0].textContent += "  ";
+  //   sortButton.appendChild(iTag);
+  // } else sortButton.childNodes[1].replaceWith(iTag);
+  // console.log(iTag);
+
+  // перерисовка тела таблицы
   const currentTbody = document.querySelector("tbody");
   const newTbody = generateTbody(tableSchema, users);
   currentTbody.replaceWith(newTbody);
 
-  // перрерисовка пояснения
+  // перерисовка пояснения
   displaySortMethod.textContent = currentSortMethod;
 });
 
