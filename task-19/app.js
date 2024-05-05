@@ -54,7 +54,7 @@ const descending = "По убыванию";
 const sortButton = document.querySelector(".btn.btn-primary.btn-sort");
 const displaySortMethod = document.querySelector("span.sort-method");
 
-sortButton.addEventListener("click", (e) => {
+sortButton.addEventListener("click", () => {
   // создание стрелки
   const iTag = document.createElement("i");
   iTag.classList.add("fa-solid");
