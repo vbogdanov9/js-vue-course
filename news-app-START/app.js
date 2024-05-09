@@ -1,3 +1,37 @@
+// const categoriesArr = [
+//   "all",
+//   "business",
+//   "entertainment",
+//   "general",
+//   "health",
+//   "science",
+//   "sports",
+//   "echnology",
+// ];
+
+const categoriesObj = {
+  all: "All",
+  business: "Business",
+  entertainment: "Entertainment",
+  general: "General",
+  health: "Health",
+  science: "Science",
+  sports: "Sports",
+  technology: "Technology",
+};
+
+function renderCategories(catsObj) {
+  let fragment = "";
+  let categoryEl = document.getElementById("category");
+  for (catName in catsObj) {
+    fragment += `<option value="${catName}">${catsObj[catName]}</option>`;
+  }
+  // console.log("fragment = ", fragment);
+  // console.log("categoryEl = ", categoryEl);
+  categoryEl.insertAdjacentHTML("afterbegin", fragment);
+}
+renderCategories(categoriesObj);
+
 // Custom Http Module
 function customHttp() {
   return {
@@ -58,20 +92,38 @@ const http = customHttp();
 
 const newsService = (function () {
   const apiKey = "fbd6d6e7f930417ca3964165605c39b6";
+  // const apiKey = "";
   const apiUrl = "https://newsapi.org/v2";
 
   return {
-    topHeadlines(country = "ua", cb) {
-      http.get(
-        `${apiUrl}/top-headlines?country=${country}&category=technology&apiKey=${apiKey}`,
-        cb
-      );
+    topHeadlines(country = "ua", category = "all", cb) {
+      console.log("country = ", country);
+      console.log("category = ", category);
+      let url = "";
+      if (category === "all") {
+        url = `${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`;
+      } else {
+        url = `${apiUrl}/top-headlines?country=${country}&category=${category}&apiKey=${apiKey}`;
+      }
+      console.log("url = ", url);
+      http.get(url, cb);
     },
     everything(query, cb) {
       http.get(`${apiUrl}/everything?q=${query}&apiKey=${apiKey}`, cb);
     },
   };
 })();
+
+//Elements
+const form = document.forms["newsControls"];
+const countrySelect = form.elements["country"];
+const categorySelect = form.elements["category"];
+const searchInput = form.elements["search"];
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  loadNews();
+});
 
 //  init selects
 document.addEventListener("DOMContentLoaded", function () {
@@ -80,15 +132,34 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // load news function
-
 function loadNews() {
-  newsService.topHeadlines("ua", onGetResponse);
+  showLoader();
+  const country = countrySelect.value;
+  const category = categorySelect.value;
+  const searchText = searchInput.value;
+
+  if (!searchText) {
+    newsService.topHeadlines(country, category, onGetResponse);
+  } else {
+    newsService.everything(searchText, onGetResponse);
+  }
 }
 
 // Function on get response from server
 function onGetResponse(err, res) {
+  removePreloader();
   // console.log("res = ", res);
   // console.log("res.articles = ", res.articles);
+  if (err) {
+    showAlert(err, "error-msg");
+    return;
+  }
+
+  if (!res.articles.length) {
+    // show empty message
+    showAlert("новостей не найдено", "error-msg");
+    return;
+  }
 
   renderNews(res.articles);
 }
@@ -96,6 +167,10 @@ function onGetResponse(err, res) {
 // function render news
 function renderNews(news) {
   const newsContainer = document.querySelector(".news-container .row");
+  if (newsContainer.children.length) {
+    clearContainer(newsContainer);
+  }
+
   // console.log("newsContainer = ", newsContainer);
   let fragment = "";
   news.forEach((newsItem) => {
@@ -103,37 +178,38 @@ function renderNews(news) {
     fragment += el;
   });
 
-  console.log(fragment);
+  // console.log(fragment);
 
   newsContainer.insertAdjacentHTML("afterbegin", fragment);
+}
+
+// очистить контейнер с новостями
+function clearContainer(container) {
+  // container.innerHTML = "";
+  let child = container.lastElementChild;
+  while (child) {
+    container.removeChild(child);
+    child = container.lastElementChild;
+  }
 }
 
 // news item template function
 function newsTemplate({ urlToImage, title, url, description }) {
   // console.log(
-  //   "urlToImage, title, url, description = ",
+  //   "urlToImage = ",
   //   urlToImage,
   //   title,
   //   url,
   //   description
   // );
 
-  // return `<div class="col s12">
-  //     <div class="card">
-  //       <div class="card-image">
-  //         <img src="${urlToImage}" alt="">
-  //         <span class="card-title">${title || ""}</span>
-  //         <div class="card-content">
-  //           <p>${description || ""}</p>
-  //         </div>
-  //         <div class="card-action"><a href="${url}">Read more</a></div>
-  //       </div>
-  //     </div>
-  //   </div>`;
+  if (!urlToImage) {
+    urlToImage = "default-photo.jpg";
+  }
 
+  console.log('urlToImage = ', urlToImage);
 
-
-    return `<div class="col s12">
+  return `<div class="col s12">
         <div class="card">
           <div class="card-image">
             <img src="${urlToImage}" />
@@ -147,4 +223,25 @@ function newsTemplate({ urlToImage, title, url, description }) {
           </div>
         </div>
       </div>`;
+}
+
+// предупреждение
+function showAlert(msg, type = "success") {
+  M.toast({ html: msg, classes: type });
+}
+
+// show loader function
+function showLoader() {
+  const preloader = `<div class="progress">
+      <div class="indeterminate"></div>
+  </div>`;
+  document.body.insertAdjacentHTML("afterbegin", preloader);
+}
+
+//Remove loader function
+function removePreloader() {
+  const loader = document.querySelector(".progress");
+  if (loader) {
+    loader.remove();
+  }
 }
