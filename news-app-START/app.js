@@ -97,15 +97,15 @@ const newsService = (function () {
 
   return {
     topHeadlines(country = "ua", category = "all", cb) {
-      console.log("country = ", country);
-      console.log("category = ", category);
+      // console.log("country = ", country);
+      // console.log("category = ", category);
       let url = "";
       if (category === "all") {
         url = `${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`;
       } else {
         url = `${apiUrl}/top-headlines?country=${country}&category=${category}&apiKey=${apiKey}`;
       }
-      console.log("url = ", url);
+      // console.log("url = ", url);
       http.get(url, cb);
     },
     everything(query, cb) {
@@ -148,10 +148,11 @@ function loadNews() {
 // Function on get response from server
 function onGetResponse(err, res) {
   removePreloader();
-  // console.log("res = ", res);
+  console.log("res = ", res);
   // console.log("res.articles = ", res.articles);
   if (err) {
     showAlert(err, "error-msg");
+    console.log("err = ", err);
     return;
   }
 
@@ -207,7 +208,7 @@ function newsTemplate({ urlToImage, title, url, description }) {
     urlToImage = "default-photo.jpg";
   }
 
-  console.log('urlToImage = ', urlToImage);
+  // console.log('urlToImage = ', urlToImage);
 
   return `<div class="col s12">
         <div class="card">
@@ -245,3 +246,4 @@ function removePreloader() {
     loader.remove();
   }
 }
+

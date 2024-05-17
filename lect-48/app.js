@@ -89,5 +89,7 @@ btnAddPost.addEventListener("click", (e) => {
   });
 });
 
+
 // response = getPosts();
 // console.log(response);
+
